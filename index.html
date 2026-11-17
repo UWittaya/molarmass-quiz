@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แบบทดสอบเคมี: มวลโมเลกุลและมวลสูตร</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e8eff2; --card:#fff; --ink:#10303c; --muted:#58727e; --line:#cbdae1;
+  --fill:#19a79d; --fill-d:#0c6e69; --soft:#eef6f7; --danger:#b3412f;
+  --r:18px; color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Sarabun","Noto Sans Thai","Leelawadee UI",Tahoma,sans-serif;
+  font-size:17px; line-height:1.6;
+  padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom));
+}
+h1,h2,h3,.head{font-family:"Prompt","Sarabun","Leelawadee UI",Tahoma,sans-serif;font-weight:600;margin:0;line-height:1.35}
+main{max-width:760px;margin:0 auto}
+[hidden]{display:none!important}
+.card{background:var(--card);border-radius:var(--r);padding:28px;border:1px solid var(--line)}
+sub{font-size:.72em;line-height:0;vertical-align:sub}
+.f{font-weight:600;white-space:nowrap}
+
+/* login */
+.brand{display:flex;gap:10px;align-items:center;color:var(--fill-d);font-weight:600;margin-bottom:14px}
+.brand svg{width:34px;height:34px}
+.login h1{font-size:clamp(26px,5vw,36px);margin-bottom:8px}
+.login p{color:var(--muted);margin:0 0 20px}
+.rules{list-style:none;padding:0;margin:0 0 24px;display:grid;gap:10px}
+.rules li{display:flex;gap:12px;align-items:flex-start;background:var(--soft);padding:12px 14px;border-radius:12px}
+.rules b{flex:none;width:26px;height:26px;border-radius:50%;background:var(--fill-d);color:#fff;display:grid;place-items:center;font-size:14px;margin-top:1px}
+label{display:block;font-weight:600;margin-bottom:6px}
+input[type=text]{
+  width:100%;font:inherit;padding:14px 16px;border-radius:12px;border:2px solid var(--line);background:#fff;color:var(--ink)
+}
+input[type=text]:focus{outline:none;border-color:var(--fill)}
+.btn{
+  font:inherit;font-family:"Prompt","Sarabun",sans-serif;font-weight:500;font-size:18px;
+  background:var(--ink);color:#fff;border:0;border-radius:14px;padding:14px 26px;cursor:pointer;min-height:52px;
+  transition:background .15s,opacity .15s;
+}
+.btn:hover:not(:disabled){background:var(--fill-d)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.block{width:100%;margin-top:16px}
+:focus-visible{outline:3px solid var(--fill);outline-offset:2px}
+
+/* quiz */
+.top{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
+.who{color:var(--muted);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:22px}
+.steps i{height:8px;border-radius:4px;background:var(--line)}
+.steps i.done{background:var(--fill-d)}
+.steps i.now{background:var(--fill)}
+.topic{color:var(--fill-d);font-weight:600;font-size:15px;margin-bottom:6px}
+.stem{font-size:clamp(19px,3.4vw,23px);margin:0 0 20px;font-family:"Prompt","Sarabun",sans-serif;font-weight:500;line-height:1.55}
+details{background:var(--soft);border-radius:12px;padding:10px 14px;margin-bottom:20px;font-size:15px}
+summary{cursor:pointer;font-weight:600}
+details p{margin:8px 0 0;color:var(--muted)}
+
+.opts{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:560px){.opts{grid-template-columns:1fr 1fr}}
+.opt{
+  position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;text-align:left;
+  font:inherit;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:14px;
+  padding:12px 16px;min-height:66px;cursor:pointer;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:pan-y;
+  -webkit-tap-highlight-color:transparent;transition:border-color .15s,opacity .2s;
+}
+.opt .fill{position:absolute;inset:0;background:var(--fill);transform-origin:left;transform:scaleX(var(--p,0));pointer-events:none}
+.opt.release .fill{transition:transform .3s ease-out}
+.opt>*:not(.fill){position:relative;z-index:1}
+.badge{
+  flex:none;width:34px;height:34px;border-radius:50%;background:var(--soft);display:grid;place-items:center;
+  font-family:"Prompt",sans-serif;font-weight:600;font-size:16px;transition:background .15s,color .15s
+}
+.val{font-size:20px;font-weight:600;flex:1}
+.opt.holding{border-color:var(--fill-d);color:#fff}
+.opt.holding .badge{background:rgba(255,255,255,.25);color:#fff}
+.opt.locked{border-color:var(--ink);color:#fff;background:var(--ink)}
+.opt.locked .fill{background:var(--ink);transform:scaleX(1)}
+.opt.locked .badge{background:#fff;color:var(--ink)}
+.opt.locked::after{content:"✓";position:relative;z-index:1;font-weight:600;font-size:20px}
+.opt.dim{opacity:.4;cursor:not-allowed}
+.status{margin:16px 0 0;color:var(--muted);font-size:15px;min-height:24px}
+.status.ok{color:var(--fill-d);font-weight:600}
+
+/* result */
+.result{text-align:center;padding:40px 24px}
+.result .big{font-family:"Prompt",sans-serif;font-weight:600;font-size:clamp(54px,14vw,92px);line-height:1.1;margin:14px 0 4px;color:var(--fill-d)}
+.result .big small{font-size:.38em;color:var(--muted);font-weight:500}
+.result h2{font-size:clamp(20px,4.4vw,26px)}
+.result .name{color:var(--ink)}
+.result p{color:var(--muted);margin:8px 0 26px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+
+<!-- หน้าแรก -->
+<section id="login" class="card login">
+  <div class="brand">
+    <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5h10M17 5v11L7 33a3 3 0 0 0 2.6 4.5h20.8A3 3 0 0 0 33 33L23 16V5"/><path d="M11.5 27h17"/></svg>
+    <span>วิชาเคมี</span>
+  </div>
+  <h1>มวลโมเลกุลและมวลสูตร</h1>
+  <p>แบบทดสอบปรนัย 6 ตัวเลือก (ก–ฉ) ข้อสอบสุ่มจากคลัง 20 ข้อ</p>
+  <ul class="rules">
+    <li><b>1</b><span>ทำ 5 ข้อ ข้อละ 0.4 คะแนน เต็ม 2 คะแนน</span></li>
+    <li><b>2</b><span>แตะค้างที่ตัวเลือกจนแถบสีเต็ม จึงถือว่าตอบแล้ว ถ้าปล่อยก่อนแถบเต็มยังเปลี่ยนใจได้</span></li>
+    <li><b>3</b><span>เมื่อแถบเต็มแล้วจะเปลี่ยนคำตอบไม่ได้ และจะไม่มีการเฉลยจนกว่าจะส่งคำตอบ</span></li>
+  </ul>
+  <label for="name">ชื่อ-นามสกุล</label>
+  <input id="name" type="text" maxlength="80" autocomplete="name" placeholder="เช่น สมชาย ใจดี">
+  <button id="start" class="btn block" disabled>เริ่มทำแบบทดสอบ</button>
+</section>
+
+<!-- หน้าทำข้อสอบ -->
+<section id="quiz" class="card" hidden>
+  <div class="top">
+    <h3 id="qno" class="head"></h3>
+    <span class="who" id="who"></span>
+  </div>
+  <div class="steps" id="steps"></div>
+  <div class="topic" id="topic"></div>
+  <p class="stem" id="stem"></p>
+  <details>
+    <summary>มวลอะตอมสัมพัทธ์ที่ใช้คำนวณ</summary>
+    <p>H = 1, C = 12, N = 14, O = 16, Na = 23, Mg = 24, Al = 27, P = 31, S = 32, Cl = 35.5, K = 39, Ca = 40, Cr = 52, Fe = 56, Co = 59, Ni = 59, Cu = 63.5, Zn = 65, Br = 80, Ag = 108, Ba = 137</p>
+  </details>
+  <div class="opts" id="opts"></div>
+  <p class="status" id="status"></p>
+  <button id="next" class="btn block" disabled>ข้อถัดไป</button>
+</section>
+
+<!-- หน้าสรุปผล -->
+<section id="result" class="card result" hidden>
+  <h2>ยินดีด้วย คุณ <span class="name" id="rname"></span></h2>
+  <div class="big"><span id="rscore"></span> <small>/ 2.0 คะแนน</small></div>
+  <p>ส่งคำตอบเรียบร้อยแล้ว</p>
+  <button id="again" class="btn">ทำใหม่อีกครั้ง</button>
+</section>
+
+</main>
+
+<script>
+/* ===== คลังข้อสอบ 20 ข้อ (a = ตำแหน่งคำตอบที่ถูก: 0=ก 1=ข 2=ค 3=ง 4=จ 5=ฉ) ===== */
+const BANK = [
+ {n:1, q:"แก๊สโพรเพน ({{C3H8}}) ซึ่งเป็นองค์ประกอบหลักของแก๊สหุงต้ม มีมวลโมเลกุลเท่ากับข้อใด", o:["36","40","44","48","52","58"], a:2},
+ {n:2, q:"น้ำตาลกลูโคส ({{C6H12O6}}) เป็นน้ำตาลโมเลกุลเดี่ยวที่ให้พลังงานแก่ร่างกาย มีมวลโมเลกุลเท่ากับข้อใด", o:["148","164","172","180","192","342"], a:3},
+ {n:3, q:"สารประกอบไอออนิกโซเดียมคาร์บอเนต ({{Na2CO3}}) หรือโซดาแอช มีมวลสูตรเท่ากับข้อใด", o:["83","94","100","106","122","138"], a:3},
+ {n:4, q:"กรดฟอสฟอริก ({{H3PO4}}) ที่นิยมใช้ในอุตสาหกรรมน้ำอัดลมและปุ๋ยเคมี มีมวลโมเลกุลเท่ากับข้อใด", o:["66","82","95","98","100","114"], a:3},
+ {n:5, q:"แคลเซียมไฮดรอกไซด์ ({{Ca(OH)2}}) หรือปูนขาว มีมวลสูตรเท่ากับข้อใด", o:["57","58","73","74","90","114"], a:3},
+ {n:6, q:"แอมโมเนียมซัลเฟต ({{(NH4)2SO4}}) ซึ่งใช้เป็นปุ๋ยไนโตรเจน มีมวลสูตรเท่ากับข้อใด", o:["114","118","128","132","146","150"], a:3},
+ {n:7, q:"อะลูมิเนียมซัลเฟต ({{Al2(SO4)3}}) ซึ่งใช้ในการตกตะกอนน้ำขุ่น มีมวลสูตรเท่ากับข้อใด", o:["150","214","294","315","342","396"], a:4},
+ {n:8, q:"แมกนีเซียมฟอสเฟต ({{Mg3(PO4)2}}) มีมวลสูตรเท่ากับข้อใด", o:["167","214","238","262","286","310"], a:3},
+ {n:9, q:"แคลเซียมซัลเฟตไดไฮเดรต ({{CaSO4·2H2O}}) หรือแร่ยิปซัม มีมวลสูตรเท่ากับข้อใด", o:["136","154","168","172","190","208"], a:3},
+ {n:10, q:"แมกนีเซียมซัลเฟตเฮปตะไฮเดรต ({{MgSO4·7H2O}}) หรือดีเกลือฝรั่ง มีมวลสูตรเท่ากับข้อใด", o:["120","138","210","228","246","264"], a:4},
+ {n:11, q:"โซเดียมคาร์บอเนตเดคะไฮเดรต ({{Na2CO3·10H2O}}) หรือโซดาซักผ้า มีมวลสูตรเท่ากับข้อใด", o:["106","124","250","268","286","304"], a:4},
+ {n:12, q:"สารส้มโพแทสเซียมอะลัมมีสูตรเคมีคือ {{KAl(SO4)2·12H2O}} มีมวลสูตรเท่ากับข้อใด", o:["258","366","438","456","474","492"], a:4},
+ {n:13, q:"สารประกอบเชิงซ้อนเตตระแอมมีนคอปเปอร์(II) ซัลเฟต ({{[Cu(NH3)4]SO4}}) มีมวลสูตรเท่ากับข้อใด", o:["176.5","193.5","210.5","227.5","244.5","261.5"], a:3},
+ {n:14, q:"สารประกอบเชิงซ้อนไดแอมมีนซิลเวอร์(I) คลอไรด์ ({{[Ag(NH3)2]Cl}}) มีมวลสูตรเท่ากับข้อใด", o:["143.5","160.5","177.5","194.5","213.0","248.5"], a:2},
+ {n:15, q:"สารประกอบเชิงซ้อนโพแทสเซียมเฮกซะไซยาโนเฟอร์เรต(II) ({{K4[Fe(CN)6]}}) มีมวลสูตรเท่ากับข้อใด", o:["238","290","329","342","368","394"], a:4},
+ {n:16, q:"สารประกอบเชิงซ้อนเฮกซะอะควาโครเมียม(III) โบรไมด์ ({{[Cr(H2O)6]Br3}}) มีมวลสูตรเท่ากับข้อใด", o:["240","292","320","364","400","436"], a:4},
+ {n:17, q:"สารประกอบไฮดรอกไซด์ชนิดหนึ่งมีสูตรเคมีคือ {{X(OH)2}} และมีมวลสูตรเท่ากับ 58 จงหาว่าอะตอม X คือธาตุใด", o:["Na","Mg","Al","K","Ca","Fe"], a:1},
+ {n:18, q:"สารประกอบคลอไรด์ชนิดหนึ่งมีสูตรเคมีคือ {{XCl3}} และมีมวลสูตรเท่ากับ 162.5 จงหาว่าอะตอม X คือธาตุใด", o:["Al","Ca","Cr","Fe","Cu","Zn"], a:3},
+ {n:19, q:"สารประกอบออกไซด์ชนิดหนึ่งมีสูตรเคมีคือ {{X2O3}} และมีมวลสูตรเท่ากับ 102 จงหาว่าอะตอม X คือธาตุใด", o:["Na","Mg","Al","P","Cr","Fe"], a:2},
+ {n:20, q:"เกลือซัลเฟตชนิดหนึ่งมีสูตรเคมีคือ {{XSO4}} และมีมวลสูตรเท่ากับ 161 จงหาว่าอะตอม X คือธาตุใด", o:["Ca","Fe","Ni","Cu","Zn","Ba"], a:4}
+];
+const TOPICS = ["สารประกอบอย่างง่าย","กลุ่มไอออนหลายอะตอม","สารประกอบไฮเดรต","สารประกอบเชิงซ้อน","หาชนิดอะตอมที่ไม่ทราบ"];
+const LETTERS = ["ก","ข","ค","ง","จ","ฉ"];
+const HOLD_MS = 1100;      // เวลาแตะค้างจนแถบเต็ม
+const PER_Q = 0.4, TOTAL = 2;
+
+const $ = id => document.getElementById(id);
+const screens = {login:$("login"), quiz:$("quiz"), result:$("result")};
+let S = null, hold = null;
+
+/* แปลง {{H2O}} เป็นตัวห้อย */
+function fmt(s){
+  return s.replace(/\{\{(.+?)\}\}/g,(_,f)=>'<span class="f">'+f.replace(/([A-Za-z)\]])(\d+)/g,'$1<sub>$2</sub>')+'</span>');
+}
+function show(name){
+  Object.entries(screens).forEach(([k,el])=>el.hidden = k!==name);
+  window.scrollTo(0,0);
+}
+/* สุ่มกลุ่มละ 1 ข้อ: 1-4, 5-8, 9-12, 13-16, 17-20 */
+function drawQuestions(){
+  return TOPICS.map((_,g)=>{
+    const pool = BANK.filter(q=>Math.floor((q.n-1)/4)===g);
+    return pool[Math.floor(Math.random()*pool.length)];
+  });
+}
+
+/* ===== หน้าแรก ===== */
+const nameEl = $("name"), startBtn = $("start");
+nameEl.addEventListener("input",()=>{ startBtn.disabled = !nameEl.value.trim(); });
+nameEl.addEventListener("keydown",e=>{ if(e.key==="Enter" && !startBtn.disabled) startQuiz(); });
+startBtn.addEventListener("click",startQuiz);
+
+function startQuiz(){
+  const name = nameEl.value.trim();
+  if(!name) return;
+  S = {name, qs:drawQuestions(), i:0, ans:[]};
+  $("who").textContent = name;
+  show("quiz");
+  render();
+}
+
+/* ===== แสดงข้อสอบทีละข้อ ===== */
+function render(){
+  const q = S.qs[S.i], last = S.i===S.qs.length-1;
+  $("qno").textContent = `ข้อ ${S.i+1} จาก ${S.qs.length}`;
+  $("steps").innerHTML = S.qs.map((_,k)=>`<i class="${k<S.i?'done':k===S.i?'now':''}"></i>`).join("");
+  $("topic").textContent = TOPICS[Math.floor((q.n-1)/4)];
+  $("stem").innerHTML = fmt(q.q);
+  $("opts").innerHTML = q.o.map((v,k)=>
+    `<button class="opt" type="button" data-k="${k}" aria-label="ตัวเลือก ${LETTERS[k]} ${v}">
+       <span class="fill"></span><span class="badge">${LETTERS[k]}</span><span class="val">${v}</span>
+     </button>`).join("");
+  setStatus("แตะค้างที่ตัวเลือกจนแถบสีเต็มเพื่อยืนยันคำตอบ");
+  const nb = $("next"); nb.disabled = true; nb.textContent = last ? "ส่งคำตอบ" : "ข้อถัดไป";
+}
+function setStatus(t,ok){ const s=$("status"); s.textContent=t; s.className="status"+(ok?" ok":""); }
+
+/* ===== กลไกแตะค้าง ===== */
+const optsEl = $("opts");
+const setP = (b,p)=>b.style.setProperty("--p",p);
+
+function startHold(btn){
+  if(S.ans[S.i]!==undefined) return;     // ล็อกแล้ว
+  cancelHold();
+  const t0 = performance.now();
+  hold = {btn, raf:0};
+  btn.classList.remove("release"); btn.classList.add("holding"); setP(btn,0);
+  const step = now=>{
+    if(!hold || hold.btn!==btn) return;
+    const p = Math.min(1,(now-t0)/HOLD_MS);
+    setP(btn,p);
+    if(p>=1) lockAnswer(btn); else hold.raf = requestAnimationFrame(step);
+  };
+  hold.raf = requestAnimationFrame(step);
+}
+function cancelHold(){
+  if(!hold) return;
+  cancelAnimationFrame(hold.raf);
+  const b = hold.btn; hold = null;
+  b.classList.remove("holding"); b.classList.add("release"); setP(b,0);
+  setTimeout(()=>b.classList.remove("release"),320);
+}
+function lockAnswer(btn){
+  hold = null;
+  S.ans[S.i] = +btn.dataset.k;
+  optsEl.querySelectorAll(".opt").forEach(b=>{
+    b.classList.remove("holding");
+    if(b===btn){ b.classList.add("locked"); setP(b,1); } else b.classList.add("dim");
+    b.setAttribute("aria-disabled","true");
+  });
+  if(navigator.vibrate) try{navigator.vibrate(30)}catch(e){}
+  setStatus("บันทึกคำตอบแล้ว (เปลี่ยนไม่ได้)",true);
+  $("next").disabled = false;
+}
+
+optsEl.addEventListener("pointerdown",e=>{
+  const b = e.target.closest(".opt");
+  if(!b || (e.pointerType==="mouse" && e.button!==0)) return;
+  startHold(b);
+});
+["pointerup","pointercancel","pointerleave"].forEach(ev=>optsEl.addEventListener(ev,()=>cancelHold()));
+optsEl.addEventListener("contextmenu",e=>e.preventDefault());
+optsEl.addEventListener("dragstart",e=>e.preventDefault());
+/* ใช้คีย์บอร์ด: กด Space/Enter ค้างไว้ */
+optsEl.addEventListener("keydown",e=>{
+  if((e.key===" "||e.key==="Enter") && !e.repeat){ e.preventDefault(); const b=e.target.closest(".opt"); if(b) startHold(b); }
+});
+optsEl.addEventListener("keyup",e=>{ if(e.key===" "||e.key==="Enter") cancelHold(); });
+optsEl.addEventListener("focusout",()=>cancelHold());
+
+/* ===== ถัดไป / ส่งคำตอบ ===== */
+$("next").addEventListener("click",()=>{
+  if(S.ans[S.i]===undefined) return;
+  if(S.i < S.qs.length-1){ S.i++; render(); window.scrollTo(0,0); }
+  else finish();
+});
+
+/* ===== สรุปผล ===== */
+function finish(){
+  const correct = S.qs.reduce((c,q,k)=>c+(S.ans[k]===q.a?1:0),0);
+  const score = (correct*PER_Q).toFixed(1);
+  $("rname").textContent = S.name;
+  $("rscore").textContent = score;
+  show("result");
+}
+$("again").addEventListener("click",()=>{
+  nameEl.value = S ? S.name : "";
+  startBtn.disabled = !nameEl.value.trim();
+  S = null;
+  show("login");
+  nameEl.focus();
+});
+</script>
+</body>
+</html>
